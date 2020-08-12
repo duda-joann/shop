@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <h2> Your Order </h2>
+{% for item in object_list %}
+        {{item}}
+<a href ='{{item.get_absolute_url}}'>Details...</a>
+    {% endfor %}
+{% endblock content %}
