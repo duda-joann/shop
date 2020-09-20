@@ -3,20 +3,31 @@ import string
 
 import stripe
 from django.conf import settings
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Item, OrderItem, Order, Address
-from django.views.generic import ListView, DetailView, View
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils import timezone
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from .form import CheckoutForm, CouponForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import redirect
+from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
+from django.views.generic import ListView, DetailView, View
 
-
-# Create your views here.
+from .form import CheckoutForm, CouponForm, RefundForm, PaymentForm
+from .models import Item, OrderItem, Order, Address, Payment, Coupon, Refund, UserProfile
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+def create_ref_code():
+    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=20))
+
+
+def products(request):
+    context = {
+        'items': Item.objects.all()
+    }
+    return render(request, "products.html", context)
+
 
 def is_valid_form(values):
     valid = True
@@ -24,6 +35,7 @@ def is_valid_form(values):
         if field == '':
             valid = False
     return valid
+
 
 class CheckoutView(View):
     def get(self, *args, **kwargs):
@@ -194,17 +206,6 @@ class CheckoutView(View):
             return redirect("core:order-summary")
 
 
-class HomeView(ListView):
-    model = Item
-    paginate_by = 12
-    template_name = 'home.html'
-
-
-class ItemDetailView(DetailView):
-    model = Item
-    template_name = 'product.html'
-
-
 class PaymentView(View):
     def get(self, *args, **kwargs):
         order = Order.objects.get(user=self.request.user, ordered=False)
@@ -263,24 +264,28 @@ class PaymentView(View):
             try:
 
                 if use_default or save:
+                    # charge the customer because we cannot charge the token more than once
                     charge = stripe.Charge.create(
                         amount=amount,  # cents
                         currency="usd",
                         customer=userprofile.stripe_customer_id
                     )
                 else:
+                    # charge once off on the token
                     charge = stripe.Charge.create(
                         amount=amount,  # cents
                         currency="usd",
                         source=token
                     )
 
+                # create the payment
                 payment = Payment()
                 payment.stripe_charge_id = charge['id']
                 payment.user = self.request.user
                 payment.amount = order.get_total()
                 payment.save()
 
+                # assign the payment to the order
 
                 order_items = order.items.all()
                 order_items.update(ordered=True)
@@ -302,34 +307,67 @@ class PaymentView(View):
                 return redirect("/")
 
             except stripe.error.RateLimitError as e:
+                # Too many requests made to the API too quickly
                 messages.warning(self.request, "Rate limit error")
                 return redirect("/")
 
             except stripe.error.InvalidRequestError as e:
+                # Invalid parameters were supplied to Stripe's API
                 print(e)
                 messages.warning(self.request, "Invalid parameters")
                 return redirect("/")
 
             except stripe.error.AuthenticationError as e:
+                # Authentication with Stripe's API failed
+                # (maybe you changed API keys recently)
                 messages.warning(self.request, "Not authenticated")
                 return redirect("/")
 
             except stripe.error.APIConnectionError as e:
+                # Network communication with Stripe failed
                 messages.warning(self.request, "Network error")
                 return redirect("/")
 
             except stripe.error.StripeError as e:
+                # Display a very generic error to the user, and maybe send
+                # yourself an email
                 messages.warning(
                     self.request, "Something went wrong. You were not charged. Please try again.")
                 return redirect("/")
 
             except Exception as e:
+                # send an email to ourselves
                 messages.warning(
                     self.request, "A serious error occurred. We have been notifed.")
                 return redirect("/")
 
         messages.warning(self.request, "Invalid data received")
         return redirect("/payment/stripe/")
+
+
+class HomeView(ListView):
+    model = Item
+    paginate_by = 10
+    template_name = "home.html"
+
+
+class OrderSummaryView(LoginRequiredMixin, View):
+    def get(self, *args, **kwargs):
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            context = {
+                'object': order
+            }
+            return render(self.request, 'order_summary.html', context)
+        except ObjectDoesNotExist:
+            messages.warning(self.request, "You do not have an active order")
+            return redirect("/")
+
+
+class ItemDetailView(DetailView):
+    model = Item
+    template_name = "product.html"
+
 
 @login_required
 def add_to_cart(request, slug):
@@ -342,6 +380,7 @@ def add_to_cart(request, slug):
     order_qs = Order.objects.filter(user=request.user, ordered=False)
     if order_qs.exists():
         order = order_qs[0]
+        # check if the order item is in the order
         if order.items.filter(item__slug=item.slug).exists():
             order_item.quantity += 1
             order_item.save()
@@ -369,6 +408,7 @@ def remove_from_cart(request, slug):
     )
     if order_qs.exists():
         order = order_qs[0]
+        # check if the order item is in the order
         if order.items.filter(item__slug=item.slug).exists():
             order_item = OrderItem.objects.filter(
                 item=item,
@@ -396,6 +436,7 @@ def remove_single_item_from_cart(request, slug):
     )
     if order_qs.exists():
         order = order_qs[0]
+        # check if the order item is in the order
         if order.items.filter(item__slug=item.slug).exists():
             order_item = OrderItem.objects.filter(
                 item=item,
@@ -415,16 +456,6 @@ def remove_single_item_from_cart(request, slug):
     else:
         messages.info(request, "You do not have an active order")
         return redirect("core:product", slug=slug)
-
-
-class OrderSummaryView(LoginRequiredMixin, View):
-    def get(self, *args, **kwargs):
-        try:
-            order = Order.objects.get(user=self.request.user, ordered = False)
-            return render(self.request, 'order_summary.html', context = {object: order})
-        except ObjectDoesNotExist:
-            messages.warning(self.request, "You do not have an active order")
-            return redirect('/')
 
 
 def get_coupon(request, code):
@@ -486,3 +517,5 @@ class RequestRefundView(View):
             except ObjectDoesNotExist:
                 messages.info(self.request, "This order does not exist.")
                 return redirect("core:request-refund")
+
+

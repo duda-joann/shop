@@ -2,23 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5b19e1cf-6cc0-45e6-b5f6-4b206fe98650" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/shop/katalog/shop/my_shop/form.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/checkout.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/footer.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/header.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/payment.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/scripts.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/main.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/navbar.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/request_refund.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shop/katalog/shop/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shop/katalog/shop/my_shop/form.py" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/my_shop/form.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shop/katalog/shop/my_shop/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/my_shop/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shop/katalog/shop/my_shop/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/my_shop/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shop/katalog/shop/my_shop/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/my_shop/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shop/katalog/shop/shop/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/shop/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shop/katalog/shop/shop/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/shop/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shop/katalog/shop/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shop/katalog/shop/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shop/katalog/shop/templates/item_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/item_list.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shop/katalog/shop/templates/order_summary.html" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/order_summary.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shop/katalog/shop/templates/product.html" beforeDir="false" afterPath="$PROJECT_DIR$/shop/katalog/shop/templates/product.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -93,6 +88,14 @@
       <option name="presentableId" value="Default" />
       <updated>1596744057996</updated>
     </task>
+    <task id="LOCAL-00001" summary="shipping and payments">
+      <created>1599332280215</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1599332280215</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -107,5 +110,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="shipping and payments" />
+    <option name="LAST_COMMIT_MESSAGE" value="shipping and payments" />
   </component>
 </project>

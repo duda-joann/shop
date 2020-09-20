@@ -7,15 +7,44 @@ from django_countries.fields import CountryField
 # Create your models here.
 
 CATEGORY_CHOICES = (
-    ('S', 'Shirt'),
-    ('SW', 'Sport wear'),
-    ('OW', 'Outwear')
+    ('For her', 'For Her'),
+    ('For him', 'For Him'),
+    ('Unixex', 'Unisex'),
+    ('Home', 'Home')
 )
 
 LABEL_CHOICES = (
-    ('P', 'primary'),
-    ('S', 'secondary'),
-    ('D', 'danger')
+    ('EDP', 'Eau de Parfum'),
+    ('EDT', 'Eau de Toilette'),
+    ('EDC', 'Eau de Cologne'),
+    ('EUF', 'Eau Fraiche'),
+)
+
+FRAGRANCE_FAMILY = (
+    ("o", 'Oriental'),
+    ("g", 'Gourmand'),
+    ("F", 'Floral'),
+    ("W", 'Woody'),
+    ("FF", 'Fruity'),
+    ('OUD', 'OUD')
+)
+
+BRAND = (
+    ('Blackbird', 'BlackBird'),
+         ('Aqua di Parma', 'Aqua di Parma'),
+         ('Guerlain', 'Guerlain'),
+         ('Tom Ford', 'Tom Ford'),
+         ("Etat Libre D Orange", "ETAT LIBRE D'ORANGE"),
+         )
+
+Volume = (
+    ('10', '10 ml'),
+    ('15', '15ml'),
+    ('20', '20ml'),
+    ('30', '30ml'),
+    ('50', '50ml'),
+    ('75', '75ml'),
+    ('100', '150ml'),
 )
 
 ADDRESS_CHOICES = (
@@ -24,22 +53,15 @@ ADDRESS_CHOICES = (
 )
 
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    stripe_customer_id = models.CharField(max_length=50, blank=True, null=True)
-    one_click_purchasing = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.user.username
-
-
 class Item(models.Model):
     title = models.CharField(max_length=100)
+    category = models.CharField(choices = CATEGORY_CHOICES, max_length=10)
+    label = models.CharField(choices = LABEL_CHOICES, max_length=3)
+    fragrance_family = models.CharField(choices = FRAGRANCE_FAMILY, max_length=10)
+    brand = models.CharField(choices = BRAND, max_length = 30)
+    volume = models.CharField(choices = Volume, max_length=10)
     price = models.FloatField()
     discount_price = models.FloatField(blank=True, null=True)
-    category = models.CharField(choices=CATEGORY_CHOICES, max_length=2)
-    label = models.CharField(choices=LABEL_CHOICES, max_length=1)
     slug = models.SlugField()
     description = models.TextField()
     image = models.ImageField()
@@ -62,6 +84,14 @@ class Item(models.Model):
             'slug': self.slug
         })
 
+class UserProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    stripe_customer_id = models.CharField(max_length=50, blank=True, null=True)
+    one_click_purchasing = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username
 
 class OrderItem(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
